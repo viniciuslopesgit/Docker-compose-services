@@ -1,6 +1,7 @@
 services:
   outline:
     image: docker.getoutline.com/outlinewiki/outline:latest
+    container_name: outline_server
     env_file: ./docker.env
     ports:
       - "3000:3000"
@@ -15,6 +16,7 @@ services:
 
   redis:
     image: redis
+    container_name: outline_redis
     env_file: ./docker.env
     ports:
       - "6379:6379"
@@ -31,6 +33,7 @@ services:
 
   postgres:
     image: postgres
+    container_name: outline_postgres
     env_file: ./docker.env
     ports:
       - "5432:5432"
@@ -48,15 +51,32 @@ services:
     networks:
       - outline-network
 
+  minio:
+    image: minio/minio:latest
+    container_name: outline_minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    entrypoint: sh
+    command: -c 'minio server /data --console-address ":9001"'
+    deploy:
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - minio-data:/data
+    networks:
+      outline-network:
+        ipv4_address: 192.168.1.6
+
   keycloak:
     image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak_server
     command: start-dev --http-port=8080
-    #command: start --optimized --https-port=8443 --hostname-strict=false
-    #volumes:
-    #  - ./certs/keycloak.crt:/etc/x509/https/tls.crt
-    # - ./certs/keycloak.key:/etc/x509/https/tls.key
     ports:
-      - "8080:8080"
+      - "8090:8080"
     environment:
       POSTGRES_USER: 'user'
       POSTGRES_PASSWORD: 'pass'
@@ -66,10 +86,12 @@ services:
     depends_on:
       - postgres
     networks:
-      - outline-network
+      outline-network:
+        ipv4_address: 192.168.1.5 
 
   https-portal:
     image: steveltn/https-portal
+    container_name: keycloak_https_portal
     env_file: ./docker.env
     ports:
       - '80:80'
@@ -95,7 +117,11 @@ volumes:
   https-portal-data:
   storage-data:
   database-data:
+  minio-data:
 
 networks:
   outline-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.1.0/24
