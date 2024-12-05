@@ -10,6 +10,8 @@ services:
       - postgres
       - redis
       - keycloak
+    networks:
+      - outline-network
 
   redis:
     image: redis
@@ -24,6 +26,8 @@ services:
       interval: 10s
       timeout: 30s
       retries: 3
+    networks:
+      - outline-network
 
   postgres:
     image: postgres
@@ -41,6 +45,8 @@ services:
       POSTGRES_USER: 'user'
       POSTGRES_PASSWORD: 'pass'
       POSTGRES_DB: 'outline'
+    networks:
+      - outline-network
 
   keycloak:
     image: quay.io/keycloak/keycloak:latest
@@ -59,6 +65,8 @@ services:
       KEYCLOAK_ADMIN_PASSWORD: admin
     depends_on:
       - postgres
+    networks:
+      - outline-network
 
   https-portal:
     image: steveltn/https-portal
@@ -80,8 +88,14 @@ services:
       DOMAINS: 'localhost -> http://outline:3000'
       STAGE: 'local'
       WEBSOCKET: 'true'
+    networks:
+      - outline-network
 
 volumes:
   https-portal-data:
   storage-data:
   database-data:
+
+networks:
+  outline-network:
+    driver: bridge
