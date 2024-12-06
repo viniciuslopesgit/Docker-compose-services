@@ -51,6 +51,7 @@ services:
 
   storage:
     image: quay.io/minio/minio
+    container_name: outline_storage
     env_file: ./docker.env
     ports:
       - "9000:9000"
