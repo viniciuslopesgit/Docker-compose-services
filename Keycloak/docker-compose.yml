@@ -115,7 +115,7 @@ services:
       timeout: 20s
       retries: 3
     environment:
-      DOMAINS: 'localhost -> http://outline:3000'
+      DOMAINS: 'localhost -> http://outline.mystartup.ucoip.pt:3000'
       STAGE: 'local'
       WEBSOCKET: 'true'
     networks:
