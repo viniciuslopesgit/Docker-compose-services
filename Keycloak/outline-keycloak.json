@@ -24,7 +24,7 @@
         "enabled": true,
         "secret": "NB8SMpt095jSkUlcgujyAjbiq1KGyd4S",
         "redirectUris": [
-          "http://localhost/auth/oidc.callback"
+          "http://outline.mystartup.ucoip.pt/auth/oidc.callback"
         ],
         "webOrigins": ["*"],
         "protocol": "openid-connect",
