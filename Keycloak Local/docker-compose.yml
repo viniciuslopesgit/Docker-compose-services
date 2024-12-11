@@ -4,7 +4,7 @@ services:
     container_name: outline_server
     env_file: ./docker.env
     ports:
-      - "15240:3000"
+      - "3000:3000"
     depends_on:
       - postgres
       - redis
@@ -73,19 +73,18 @@ services:
       retries: 3
     networks:
       outline-network:
-        ipv4_address: 172.31.0.8
+        ipv4_address: 192.168.1.6
 
   keycloak:
-    image: viniciuslopesdocker/keycloak:1.1
+    image: quay.io/keycloak/keycloak:latest
     container_name: keycloak_server
-    command: start-dev --proxy-headers forwarded --http-port=8080 --import-realm
+    command: start-dev --http-port=8080 --import-realm
     ports:
-      - "15280:8080"
+      - "8090:8080"
     environment:
-      PROXY_ADDRESS_FORWARDING: true
       POSTGRES_USER: 'user'
       POSTGRES_PASSWORD: 'pass'
-      POSTGRES_DB: 'keycloak'
+      POSTGRES_DB: 'keycloat'
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
     volumes:
@@ -95,16 +94,15 @@ services:
       - postgres
     networks:
       outline-network:
-        ipv4_address: 172.31.0.7
-
+        ipv4_address: 192.168.1.5 
 
   https-portal:
     image: steveltn/https-portal
     container_name: keycloak_https_portal
     env_file: ./docker.env
     ports:
-      - '88:80'
-      - '444:443'
+      - '80:80'
+      - '443:443'
     links:
       - outline
       - storage
@@ -117,9 +115,7 @@ services:
       timeout: 20s
       retries: 3
     environment:
-      DOMAINS: |
-        outline.mystartup.ucoip.pt -> http://outline:3000
-        keycloak.mystartup.ucoip.pt -> http://keycloak:15280
+      DOMAINS: 'localhost -> http://outline:3000'
       STAGE: 'local'
       WEBSOCKET: 'true'
     networks:
@@ -136,4 +132,4 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.31.0.0/24
+        - subnet: 192.168.1.0/24
