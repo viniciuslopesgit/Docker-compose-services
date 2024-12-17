@@ -1,0 +1,92 @@
+services:
+  outline:
+    image: docker.getoutline.com/outlinewiki/outline:latest
+    container_name: outline_server
+    env_file: ./docker.env
+    ports:
+      - "15240:3000"
+    depends_on:
+      - postgres
+      - redis
+      - keycloak
+    #restart: always
+    networks:
+      - outline-network
+
+  redis:
+    image: redis
+    container_name: outline_redis
+    env_file: ./docker.env
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis.conf:/redis.conf
+    command: ["redis-server", "/redis.conf"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+    #restart: always
+    networks:
+      - outline-network
+
+  postgres:
+    image: postgres
+    container_name: outline_postgres
+    env_file: ./docker.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - database-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "outline", "-U", "user"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    environment:
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: 'pass'
+      POSTGRES_DB: 'outline'
+    #restart: always
+    networks:
+      - outline-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak_server
+    env_file: ./docker.env
+    command: >
+      start
+      --proxy-headers=forwarded
+      --import-realm
+      --hostname=https://keycloak.mystartup.ucoip.pt
+      --http-enabled=true
+    ports:
+      - "15280:8080"
+      - "15443:8443"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+      - ./outline-realm.json:/opt/keycloak/data/import/realm-config.json
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:15280/realms/outline"]
+      interval: 30s
+      timeout: 20s
+      retries: 5
+      start_period: 30s
+    #restart: always
+    networks:
+      - outline-network
+
+volumes:
+  database-data:
+  keycloak_data:
+
+networks:
+  outline-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/24
