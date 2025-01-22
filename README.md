@@ -21,3 +21,4 @@ Este repositório contém um arquivo **`docker-compose.yml`** configurado para f
    ```bash
    git clone https://github.com/seu-usuario/seu-repositorio.git
    cd seu-repositorio
+   docker compose up
