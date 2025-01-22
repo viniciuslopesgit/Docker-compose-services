@@ -19,7 +19,7 @@ services:
     image: grafana/grafana:11.1.4
     container_name: grafana
     networks:
-      - ipbrick-v8
+      - my_network
     hostname: '${URL_GRAFANA}'
     ports:
       - 15500:3000
@@ -43,6 +43,8 @@ services:
     image: gitlab/gitlab-ce:17.3.1-ce.0
     container_name: gitlab
     hostname: 'gitlab.keyvalue.ucoip.pt'
+    networks:
+      - my_network
     environment:
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'https://gitlab.keyvalue.ucoip.pt'
@@ -72,8 +74,6 @@ services:
       - gitlab-data:/var/opt/gitlab
     shm_size: '256m'
     restart: always
-    networks:
-      - ipbrick-v8
   
   dind:
     image: docker:27.3.1-dind
@@ -100,7 +100,7 @@ services:
   wekandb:
     image: mongo:6
     networks:
-      - ipbrick-v8
+      - my_network
     container_name: wekan-db
     restart: always
     command: mongod --logpath /dev/null --oplogSize 128 --quiet
@@ -114,7 +114,7 @@ services:
   wekan:
     image: wekanteam/wekan:v7.59
     networks:
-      - ipbrick-v8
+      - my_network
     container_name: wekan-app
     restart: always
     ports:
@@ -160,7 +160,7 @@ services:
   keycloak:
     image: keycloak/keycloak:26.0
     networks:
-      - ipbrick-v8
+      - my_network
     container_name: keycloak_server
     environment:
       PROXY_ADDRESS_FORWARDING: true
@@ -190,7 +190,7 @@ services:
   outline:
     image: docker.getoutline.com/outlinewiki/outline:latest
     networks:
-      - ipbrick-v8
+      - my_network
     container_name: outline_server
     environment:
       NODE_ENV: production
@@ -239,7 +239,7 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - ipbrick-v8
+      - my_network
     volumes:
       - database-data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -255,7 +255,7 @@ services:
     ports:
       - "6379:6379"
     networks:
-      - ipbrick-v8
+      - my_network
     volumes:
       - ./redis.conf:/redis.conf
     command: ["redis-server", "/redis.conf"]
@@ -283,6 +283,6 @@ volumes:
     driver: local
 
 networks:
-  ipbrick-v8:
+  my_network:
     driver: bridge
 
