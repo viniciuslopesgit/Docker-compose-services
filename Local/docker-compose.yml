@@ -50,7 +50,7 @@ services:
     shm_size: '256m'
     restart: always
     networks:
-      - ipbrick-network
+      - my_network
 # Apos instalação usar o seguinte comenado para alterar a senha: docker exec -it gitlab cat /etc/gitlab/initial_root_password
 
 
@@ -79,7 +79,7 @@ services:
       - grafana_storage:/var/lib/grafana
     restart: always
     networks:
-      - ipbrick-network
+      - my_network
 
   # OUTLINE
   outline:
@@ -125,7 +125,7 @@ services:
       - keycloak
     restart: always
     networks:
-      - ipbrick-network
+      - my_network
 
   redis:
     image: redis:7.4
@@ -142,7 +142,7 @@ services:
       retries: 3
     restart: always
     networks:
-      - ipbrick-network
+      - my_network
   
   # POSTGRES
   postgres:
@@ -164,7 +164,7 @@ services:
       POSTGRES_DB: 'outline'
     restart: always
     networks:
-      - ipbrick-network
+      - my_network
 
 # KEYCLOAK
   keycloak:
@@ -193,7 +193,7 @@ services:
       - postgres
     restart: always
     networks:
-      - ipbrick-network
+      - my_network
 
   # WEKAN
   wekandb:
@@ -270,7 +270,7 @@ volumes:
     driver: local
 
 networks:
-  ipbrick-network:
+  my_network:
     driver: bridge
   wekan-tier:
     driver: bridge
